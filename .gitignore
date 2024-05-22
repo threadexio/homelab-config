@@ -1,0 +1,9 @@
+/secrets/*
+!/secrets/.gitkeep
+
+/nginx/logs
+
+/pihole/etc-pihole
+/pihole/etc-dnsmasq.d
+
+/tailscale/state
