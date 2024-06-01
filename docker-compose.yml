@@ -15,9 +15,11 @@ services:
     env_file:
       - ./tailscale/config.env
       - ./secrets/tailscale-authkey.env
+    environment:
+      TS_STATE_DIR: /tailscale
     volumes:
       - /dev/net/tun:/dev/net/tun
-      - ./tailscale/state:/var/lib/tailscale
+      - ./tailscale/state:/tailscale
     network_mode: host
     restart: unless-stopped
 
@@ -44,6 +46,8 @@ services:
 
   nginx:
     container_name: nginx
+    depends_on:
+      - pihole
     image: docker.io/nginx:latest
     ports:
       - 80:80/tcp
