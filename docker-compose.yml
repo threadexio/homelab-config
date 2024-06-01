@@ -12,14 +12,8 @@ services:
   tailscale:
     container_name: tailscale
     image: docker.io/tailscale/tailscale:latest
-    environment:
-      TS_ACCEPT_DNS: 1
-      TS_HOSTNAME: atlas
-      TS_ROUTES: 10.0.0.0/24
-      TS_USERSPACE: 1
-      TS_EXTRA_ARGS: --advertise-exit-node
-      TS_AUTH_ONCE: 1
     env_file:
+      - ./tailscale/config.env
       - ./secrets/tailscale-authkey.env
     volumes:
       - /dev/net/tun:/dev/net/tun
@@ -34,8 +28,9 @@ services:
       - 53:53/tcp
       - 53:53/udp
     environment:
-      TZ: Europe/Athens
       WEBPASSWORD_FILE: /run/secrets/pihole-webpassword
+    env_file:
+      - ./pihole/config.env
     volumes:
       - ./pihole/etc-pihole:/etc/pihole
       - ./pihole/etc-dnsmasq.d:/etc/dnsmasq.d
