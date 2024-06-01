@@ -1,13 +1,5 @@
 version: "3.3"
 
-secrets:
-  pihole-webpassword:
-    file: ./secrets/pihole-webpassword
-  ssl-cert:
-    file: ./secrets/ssl-cert
-  ssl-key:
-    file: ./secrets/ssl-key
-
 services:
   tailscale:
     container_name: tailscale
@@ -26,6 +18,8 @@ services:
   pihole:
     container_name: pihole
     image: docker.io/pihole/pihole:latest
+    networks:
+      - front
     ports:
       - 53:53/tcp
       - 53:53/udp
@@ -44,11 +38,26 @@ services:
       - CAP_CHOWN
     restart: unless-stopped
 
+  syncthing:
+    container_name: syncthing
+    image: docker.io/syncthing/syncthing
+    hostname: atlas
+    networks:
+      - front
+    env_file:
+      - ./syncthing/config.env
+    volumes:
+      - ./syncthing/sync:/var/syncthing
+    restart: unless-stopped
+
   nginx:
     container_name: nginx
     depends_on:
       - pihole
+      - syncthing
     image: docker.io/nginx:latest
+    networks:
+      - front
     ports:
       - 80:80/tcp
       - 443:443/tcp
@@ -61,3 +70,14 @@ services:
       - ssl-cert
       - ssl-key
     restart: unless-stopped
+
+networks:
+  front:
+
+secrets:
+  pihole-webpassword:
+    file: ./secrets/pihole-webpassword
+  ssl-cert:
+    file: ./secrets/ssl-cert
+  ssl-key:
+    file: ./secrets/ssl-key

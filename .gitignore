@@ -7,3 +7,5 @@
 /pihole/etc-dnsmasq.d
 
 /tailscale/state
+
+/syncthing/sync
