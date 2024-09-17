@@ -6,5 +6,5 @@ EXPOSE 135 445
 
 ENV USERS_FILE /users
 
-COPY --chmod=755 entry.sh /entry.sh
-ENTRYPOINT [ "/entry.sh" ]
+COPY entry.sh /entry.sh
+ENTRYPOINT [ "/bin/sh", "/entry.sh" ]
