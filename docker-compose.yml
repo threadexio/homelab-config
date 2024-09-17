@@ -15,6 +15,23 @@ services:
     network_mode: host
     restart: unless-stopped
 
+  samba:
+    container_name: samba
+    build:
+      context: ./samba
+    environment:
+      USERS_FILE: /run/secrets/samba-users
+    ports:
+      - 135:135
+      - 445:445
+    volumes:
+      - ./samba/smb.conf:/etc/samba/smb.conf:ro
+      - ./samba/shares:/shares
+      - ./secrets/samba-users:/asd
+    secrets:
+      - samba-users
+    restart: unless-stopped
+
   pihole:
     container_name: pihole
     image: docker.io/pihole/pihole:latest
@@ -85,3 +102,5 @@ secrets:
     file: ./secrets/ssl-cert
   ssl-key:
     file: ./secrets/ssl-key
+  samba-users:
+    file: ./secrets/samba-users

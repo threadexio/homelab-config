@@ -9,3 +9,5 @@
 /tailscale/state
 
 /syncthing/sync
+
+/samba/shares
