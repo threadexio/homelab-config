@@ -1,0 +1,18 @@
+#!/usr/bin/env bash
+
+function service_install {
+  mkdir -p etc-pihole
+  mkdir -p etc-dnsmasq.d
+}
+
+function main {
+  local hook="${1:?}"
+  shift
+
+  case "$hook" in
+    "install") service_install "$@";;
+    *) ;;
+  esac
+}
+
+main "$@"

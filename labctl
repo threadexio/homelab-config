@@ -1,0 +1,65 @@
+#!/usr/bin/env bash
+set -eu
+
+SERVICES=(
+  tailscale
+  nginx
+  syncthing
+  pihole
+)
+
+function pushd {
+  command pushd "$@" >/dev/null
+}
+
+function popd {
+  command popd "$@" >/dev/null
+}
+
+function die {
+  echo "[*] $@"
+  exit 1
+}
+
+function run_service_hook {
+  local service="${1:?expected service}"
+  local hook="${2:?expected hook}"
+  shift 2
+  
+  pushd "./$service"
+  if [ -x ./service ]; then
+    ./service "$hook" "$@"
+  fi
+  popd
+}
+
+function run_service_hooks {
+  local hook="${1:?expected hook name}"
+  shift
+
+  for service in "${SERVICES[@]}"; do
+    run_service_hook "$service" "$hook" "$@"
+  done
+}
+
+function cmd_install {
+  pushd ./units
+  for unit in ./*; do
+    ln -vrsf "$unit" /etc/containers/systemd
+  done
+  popd
+
+  run_service_hooks "install"
+}
+
+function main {
+  local cmd="${1:?expected command}"
+  shift
+
+  case "$cmd" in
+    "install") cmd_install "$@";;
+    *) die "unknown command";;
+  esac
+}
+
+main "$@"
