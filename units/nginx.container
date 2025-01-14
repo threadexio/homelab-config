@@ -1,0 +1,25 @@
+[Unit]
+Description=NGINX Reverse proxy
+
+Wants=pihole.service
+Wants=syncthing.service
+
+[Container]
+Image=docker.io/nginx
+HostName=nginx
+Network=front.network
+PublishPort=80:80/tcp
+PublishPort=443:443/tcp
+
+Volume=/lab/nginx/conf.d:/etc/nginx/conf.d:ro
+Volume=/lab/nginx/www:/www:ro
+Volume=/lab/nginx/logs:/logs
+
+Secret=ssl-cert
+Secret=ssl-key
+
+[Service]
+Restart=always
+
+[Install]
+WantedBy=multi-user.target

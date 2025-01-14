@@ -1,0 +1,7 @@
+[Unit]
+Description=Front network
+
+[Network]
+
+[Install]
+WantedBy=multi-user.target

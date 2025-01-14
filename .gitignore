@@ -1,5 +1,4 @@
 /secrets/*
-!/secrets/.gitkeep
 
 /nginx/logs
 
