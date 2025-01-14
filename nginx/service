@@ -1,7 +1,11 @@
 #!/usr/bin/env bash
+set -eu
 
 function service_install {
   mkdir -p logs
+
+  podman secret create ssl-cert "$SECRETS_DIR/ssl-cert"
+  podman secret create ssl-ket "$SECRETS_DIR/ssl-key"
 }
 
 function main {

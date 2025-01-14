@@ -1,6 +1,9 @@
 #!/usr/bin/env bash
 set -eu
 
+LABROOT=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
+cd "$LABROOT"
+
 SERVICES=(
   tailscale
   nginx
@@ -27,8 +30,12 @@ function run_service_hook {
   shift 2
   
   pushd "./$service"
-  if [ -x ./service ]; then
-    ./service "$hook" "$@"
+  if [ -f ./service ]; then
+    env \
+      LABROOT="$LABROOT" \
+      SECRETS_DIR="$LABROOT/secrets" \
+      SERVICE="$service" \
+      ./service "$hook" "$@"
   fi
   popd
 }
