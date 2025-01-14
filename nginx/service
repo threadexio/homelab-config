@@ -5,7 +5,7 @@ function service_install {
   mkdir -p logs
 
   podman secret create ssl-cert "$SECRETS_DIR/ssl-cert"
-  podman secret create ssl-ket "$SECRETS_DIR/ssl-key"
+  podman secret create ssl-key "$SECRETS_DIR/ssl-key"
 }
 
 function main {
