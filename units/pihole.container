@@ -17,8 +17,5 @@ AddCapability=NET_BIND_SERVICE
 AddCapability=SYS_NICE
 AddCapability=CHOWN
 
-[Service]
-Restart=always
-
 [Install]
 WantedBy=multi-user.target

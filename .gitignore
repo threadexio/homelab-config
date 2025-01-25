@@ -8,3 +8,5 @@
 /tailscale/state
 
 /syncthing/sync
+
+/vaultwarden/data

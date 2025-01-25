@@ -9,6 +9,7 @@ SERVICES=(
   nginx
   syncthing
   pihole
+  vaultwarden
 )
 
 function pushd {
@@ -28,7 +29,7 @@ function run_service_hook {
   local service="${1:?expected service}"
   local hook="${2:?expected hook}"
   shift 2
-  
+
   pushd "./$service"
   if [ -f ./service ]; then
     env \
@@ -40,23 +41,31 @@ function run_service_hook {
   popd
 }
 
-function run_service_hooks {
-  local hook="${1:?expected hook name}"
-  shift
+function do_install_single {
+  local service="$1"
 
-  for service in "${SERVICES[@]}"; do
-    run_service_hook "$service" "$hook" "$@"
-  done
+  if [ ! -f "./units/$service.container" ]; then
+    echo "service not found"
+    return 1
+  fi
+
+  ln -vrs "./units/$service.container" /etc/containers/systemd
+  run_service_hook "$service" install
 }
 
 function cmd_install {
-  pushd ./units
-  for unit in ./*; do
-    ln -vrsf "$unit" /etc/containers/systemd
-  done
-  popd
+  local all="${1+x}"
 
-  run_service_hooks "install"
+  if [ -z "$all" ]; then
+    for service in "${SERVICES[@]}"; do
+      do_install_single "$service"
+    done
+  else
+    while [ ! -z "${1+x}" ]; do
+      do_install_single "$1"
+      shift
+    done
+  fi
 }
 
 function main {

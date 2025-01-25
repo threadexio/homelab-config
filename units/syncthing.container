@@ -11,8 +11,5 @@ PublishPort=21027:21027/udp
 EnvironmentFile=/lab/syncthing/config.env
 Volume=/lab/syncthing/sync:/var/syncthing
 
-[Service]
-Restart=always
-
 [Install]
 WantedBy=multi-user.target

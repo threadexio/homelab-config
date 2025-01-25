@@ -1,0 +1,12 @@
+[Unit]
+Description=Vaultwarden
+
+[Container]
+Image=docker.io/vaultwarden/server
+HostName=vaultwarden
+Network=front.network
+Environment=DOMAIN=https://atlas/
+Volume=/lab/vaultwarden/data:/data
+
+[Install]
+WantedBy=multi-user.target

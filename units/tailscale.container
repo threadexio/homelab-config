@@ -12,8 +12,5 @@ Environment=TS_USERSPACE=1
 EnvironmentFile=/lab/tailscale/config.env
 Volume=/lab/tailscale/state:/tailscale
 
-[Service]
-Restart=always
-
 [Install]
 WantedBy=multi-user.target

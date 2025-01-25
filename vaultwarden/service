@@ -1,0 +1,18 @@
+#!/usr/bin/env bash
+set -eu
+
+function service_install {
+  mkdir -p data
+}
+
+function main {
+  local hook="${1:?}"
+  shift
+
+  case "$hook" in
+    "install") service_install "$@";;
+    *) ;;
+  esac
+}
+
+main "$@"
