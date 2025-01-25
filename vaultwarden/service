@@ -3,6 +3,7 @@ set -eu
 
 function service_install {
   mkdir -p data
+  ln -rsf backup.cron /etc/cron.d/vaultwarden-backup
 }
 
 function main {
