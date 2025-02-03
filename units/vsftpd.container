@@ -9,6 +9,7 @@ PublishPort=21/tcp
 PublishPort=21000-21100/tcp
 Volume=/lab/vsftpd/vsftpd.conf:/vsftpd.conf:ro
 Volume=/lab/vsftpd/data:/ftp
+Secret=ftpusers
 
 [Install]
 WantedBy=multi-user.target
