@@ -1,4 +1,4 @@
-[Unit]
+i[Unit]
 Description=vsftpd
 
 [Container]
@@ -6,6 +6,7 @@ Image=vsftpd.build
 Network=host
 Volume=/lab/vsftpd/vsftpd.conf:/vsftpd.conf:ro
 Volume=/lab/vsftpd/data:/ftp
+Volume=/lab/vsftpd/log:/var/log
 Secret=ftpusers
 
 [Install]

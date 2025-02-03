@@ -12,4 +12,5 @@
 /vaultwarden/data
 /vaultwarden/backup
 
+/vsftpd/log
 /vsftpd/data
