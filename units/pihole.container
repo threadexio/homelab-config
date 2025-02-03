@@ -5,8 +5,8 @@ Description=PiHole
 Image=docker.io/pihole/pihole:latest
 HostName=pihole
 Network=front.network
-PublishPort=10.1.0.2:53:53/tcp
-PublishPort=10.1.0.2:53:53/udp
+PublishPort=10.0.0.16:53:53/tcp
+PublishPort=10.0.0.16:53:53/udp
 EnvironmentFile=/lab/pihole/config.env
 
 Environment=WEBPASSWORD_FILE=/run/secrets/pihole-webpassword
