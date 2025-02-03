@@ -3,10 +3,7 @@ Description=vsftpd
 
 [Container]
 Image=vsftpd.build
-HostName=vsftpd
-PublishPort=20/tcp
-PublishPort=21/tcp
-PublishPort=21000-21100/tcp
+Network=host
 Volume=/lab/vsftpd/vsftpd.conf:/vsftpd.conf:ro
 Volume=/lab/vsftpd/data:/ftp
 Secret=ftpusers
