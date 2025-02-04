@@ -1,0 +1,17 @@
+[Unit]
+Description=Promtail
+
+[Container]
+Image=docker.io/grafana/promtail
+HostName=promtail
+Network=back.network
+Exec=--config.file=/config.yaml
+Volume=/lab/promtail/config.yaml:/config.yaml:ro
+Volume=/lab/promtail/data:/promtail
+
+Volume=/var/log/journal:/var/log/journal
+Volume=/run/log/journal:/run/log/journal
+Volume=/lab/nginx/logs:/nginx-logs:ro
+
+[Install]
+WantedBy=multi-user.target

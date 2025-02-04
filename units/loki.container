@@ -1,0 +1,13 @@
+[Unit]
+Description=Loki
+
+[Container]
+Image=docker.io/grafana/loki
+HostName=loki
+Network=back.network
+Exec=--config.file=/config.yaml
+Volume=/lab/loki/config.yaml:/config.yaml:ro
+Volume=/lab/loki/data:/loki
+
+[Install]
+WantedBy=multi-user.target

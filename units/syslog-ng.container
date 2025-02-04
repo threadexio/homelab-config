@@ -1,0 +1,13 @@
+[Unit]
+Description=syslog-ng
+
+[Container]
+Image=lscr.io/linuxserver/syslog-ng:latest
+HostName=syslog-ng
+Network=back.network
+PublishPort=1514:1514/tcp
+PublishPort=1514:1514/udp
+Volume=/lab/syslog-ng:/config
+
+[Install]
+WantedBy=multi-user.target

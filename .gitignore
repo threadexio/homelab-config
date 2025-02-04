@@ -14,3 +14,10 @@
 
 /vsftpd/log
 /vsftpd/data
+
+/grafana/data
+/loki/data
+/promtail/data
+
+/syslog-ng/*
+!/syslog-ng/syslog-ng.conf
