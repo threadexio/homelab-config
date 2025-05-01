@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+
+mkdir -p data
+ln -rsf backup.cron /etc/cron.d/vaultwarden-backup

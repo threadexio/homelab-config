@@ -5,14 +5,18 @@ Description=PiHole
 Image=docker.io/pihole/pihole:latest
 HostName=pihole
 Network=front.network
+
 PublishPort=10.0.0.16:53:53/tcp
 PublishPort=10.0.0.16:53:53/udp
-EnvironmentFile=/lab/pihole/config.env
 
+EnvironmentFile={{service_path}}/config.env
 Environment=WEBPASSWORD_FILE=/run/secrets/pihole-webpassword
+
+Volume={{service_path}}/etc-pihole:/etc/pihole
+Volume={{service_path}}/etc-dnsmasq.d:/etc/dnsmasq.d
+
 Secret=pihole-webpassword
-Volume=/lab/pihole/etc-pihole:/etc/pihole
-Volume=/lab/pihole/etc-dnsmasq.d:/etc/dnsmasq.d
+
 AddCapability=NET_BIND_SERVICE
 AddCapability=SYS_NICE
 AddCapability=CHOWN

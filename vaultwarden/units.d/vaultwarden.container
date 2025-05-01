@@ -5,8 +5,10 @@ Description=Vaultwarden
 Image=docker.io/vaultwarden/server
 HostName=vaultwarden
 Network=front.network
+
 Environment=DOMAIN=https://atlas/
-Volume=/lab/vaultwarden/data:/data
+
+Volume={{service_path}}/data:/data
 
 [Install]
 WantedBy=multi-user.target

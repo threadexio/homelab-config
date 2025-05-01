@@ -5,10 +5,10 @@ UID="${UID:-1000}"
 USERS_FILE="${USERS_FILE:-/run/secrets/ftpusers}"
 
 cp /vsftpd.conf /etc/vsftpd.conf
-adduser -D -s /sbin/nologin -H -h /ftp -u "$UID" -g "FTP user" ftpuser
+adduser -D -s /sbin/nologin -H -h /data -u "$UID" -g "FTP user" ftpuser
 
 while IFS=: read -r uid user pw; do
-  adduser -D -H -h /ftp -u "$uid" "$user"
+  adduser -D -H -h /data -u "$uid" "$user"
   echo "$user:$pw" | chpasswd -e 2>/dev/null
 done < "$USERS_FILE"
 

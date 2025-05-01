@@ -7,10 +7,12 @@ HostName=tailscale
 AddCapability=NET_ADMIN
 AddDevice=/dev/net/tun
 Network=host
+
 Environment=TS_STATE_DIR=/tailscale
 Environment=TS_USERSPACE=1
-EnvironmentFile=/lab/tailscale/config.env
-Volume=/lab/tailscale/state:/tailscale
+EnvironmentFile={{service_path}}/config.env
+
+Volume={{service_path}}/state:/tailscale
 
 [Install]
 WantedBy=multi-user.target

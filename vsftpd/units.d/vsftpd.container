@@ -4,9 +4,11 @@ Description=vsftpd
 [Container]
 Image=vsftpd.build
 Network=host
-Volume=/lab/vsftpd/vsftpd.conf:/vsftpd.conf:ro
-Volume=/lab/vsftpd/data:/ftp
-Volume=/lab/vsftpd/log:/var/log
+
+Volume={{service_path}}/vsftpd.conf:/vsftpd.conf:ro
+Volume={{service_path}}/data:/data
+Volume={{service_path}}/logs:/logs
+
 Secret=ftpusers
 
 [Install]

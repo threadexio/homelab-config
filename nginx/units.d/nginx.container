@@ -20,9 +20,9 @@ Network=front.network
 PublishPort=80:80/tcp
 PublishPort=443:443/tcp
 
-Volume=/lab/nginx/conf.d:/etc/nginx/conf.d:ro
-Volume=/lab/nginx/www:/www:ro
-Volume=/lab/nginx/logs:/logs
+Volume={{service_path}}/conf.d:/etc/nginx/conf.d:ro
+Volume={{service_path}}/www:/www:ro
+Volume={{service_path}}/logs:/logs
 
 Secret=ssl-key
 Secret=ssl-cert

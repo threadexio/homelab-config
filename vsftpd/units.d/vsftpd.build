@@ -1,0 +1,3 @@
+[Build]
+ImageTag=localhost/vsftpd
+SetWorkingDirectory={{service_path}}/image

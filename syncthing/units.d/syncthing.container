@@ -5,11 +5,13 @@ Description=Syncthing
 Image=docker.io/syncthing/syncthing
 HostName=syncthing
 Network=front.network
+
 PublishPort=22000:22000/tcp
 PublishPort=22000:22000/udp
 PublishPort=21027:21027/udp
-EnvironmentFile=/lab/syncthing/config.env
-Volume=/lab/syncthing/sync:/var/syncthing
+
+EnvironmentFile={{service_path}}/config.env
+Volume={{service_path}}/data:/var/syncthing
 
 [Install]
 WantedBy=multi-user.target
