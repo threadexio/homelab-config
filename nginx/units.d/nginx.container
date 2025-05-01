@@ -10,9 +10,6 @@ PartOf=syncthing.service
 Wants=vaultwarden.service
 PartOf=vaultwarden.service
 
-Wants=grafana.service
-PartOf=grafana.service
-
 [Container]
 Image=docker.io/nginx
 HostName=nginx
