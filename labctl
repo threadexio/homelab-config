@@ -2,7 +2,6 @@
 from typing import *
 import subprocess
 import argparse
-import glob
 import sys
 import os
 
@@ -13,28 +12,30 @@ import os
 ###############################################################################
 
 CSI     = "\033"
-BOLD    = CSI + "[1;m"
-DIM     = CSI + "[2;m"
-BLACK   = CSI + "[30;m"
-RED     = CSI + "[31;m"
-GREEN   = CSI + "[32;m"
-YELLOW  = CSI + "[33;m"
-BLUE    = CSI + "[34;m"
-MAGENTA = CSI + "[35;m"
-CYAN    = CSI + "[36;m"
-WHITE   = CSI + "[37;m"
-DEFAULT = CSI + "[39;m"
-RESET   = CSI + "[0;m"
+BOLD    = CSI + "[1m"
+DIM     = CSI + "[2m"
+BLACK   = CSI + "[30m"
+RED     = CSI + "[31m"
+GREEN   = CSI + "[32m"
+YELLOW  = CSI + "[33m"
+BLUE    = CSI + "[34m"
+MAGENTA = CSI + "[35m"
+CYAN    = CSI + "[36m"
+WHITE   = CSI + "[37m"
+DEFAULT = CSI + "[39m"
+RESET   = CSI + "[0m"
 
 def info(msg: str):
-    print(f" {BOLD + BLUE}*{RESET} {BOLD}{msg}{RESET}", file=sys.stderr)
+    print(f" {BOLD + BLUE}*{RESET} {msg}", file=sys.stderr)
 
 def warn(msg: str):
-    print(f" {BOLD + YELLOW}!{RESET} {BOLD}{msg}{RESET}", file=sys.stderr)
+    print(f" {BOLD + YELLOW}!{RESET} {msg}", file=sys.stderr)
 
 def error(msg: str):
-    print(f" {BOLD + RED}x{RESET} {BOLD}{msg}{RESET}", file=sys.stderr)
+    print(f" {BOLD + RED}x{RESET} {msg}", file=sys.stderr)
 
+def path(p: str) -> str:
+    return f"'{BOLD + YELLOW}{p}{RESET}'"
 
 ###############################################################################
 #                                                                             #
@@ -95,32 +96,35 @@ class Service:
         self.name = os.path.basename(path)
         self.path = path
 
-    def _vars(self, *, env: Dict[str, str]=os.environ) -> Dict[str, str]:
+    def _path(self, *path: str) -> str:
+        return os.path.join(self.path, *path)
+
+    def _vars(self, *, extra: Dict[str, Dict[str, str]]={"env": os.environ}) -> Dict[str, str]:
         vars = {
             "root": os.path.realpath(os.path.join(self.path, "..")),
             "service": self.name,
             "service_path": self.path,
         }
 
-        vars.update({
-            f"env:{k}": v for k, v in env.items()
-        })
+        for ns, x in extra.items():
+            vars.update({
+                f"{ns}:{k}": v for k, v in x.items()
+            })
+
 
         return vars
 
     def install_units(self, dst: str):
-        units_path = os.path.join(self.path, "units.d")
-
-        try:
-            units = list(filter(lambda x: not os.path.isdir(x), os.listdir(units_path)))
-        except FileNotFoundError:
-            return
+        units_path = self._path("units.d")
+        units = list(filter(lambda x: not os.path.isdir(x), os.listdir(units_path)))
 
         vars = self._vars()
 
         for unit in units:
             src_path = os.path.join(units_path, unit)
             dst_path = os.path.join(dst, unit)
+
+            info(f"installing unit {path(src_path)} -> {path(dst_path)}")
 
             with open(src_path, "r") as f:
                 contents = '''#
@@ -135,73 +139,83 @@ class Service:
                 f.write(contents)
 
     def install_secrets(self):
-        secrets_path = os.path.join(self.path, "secrets.d")
-
-        try:
-            secrets = filter(lambda x: not os.path.isdir(x),
-                        os.listdir(secrets_path)
-                    )
-        except FileNotFoundError:
-            return
+        secrets_path = self._path("secrets.d")
+        secrets = filter(lambda x: not os.path.isdir(x),
+                    os.listdir(secrets_path)
+                )
 
         for secret in secrets:
             secret_path = os.path.join(secrets_path, secret)
+            info(f"creating secret {path(secret)}...")
             p = subprocess.run(["podman", "secret", "create", "--replace", secret, secret_path], stdout=subprocess.DEVNULL)
             if p.returncode != 0:
                 raise ServiceInstallSecretError(secret)
 
     def run_hook(self, kind: str):
-        hook = os.path.join(self.path, "hooks.d", kind)
+        hook = self._path("hooks.d", kind)
 
-        try:
-            env = self._vars(env={})
-            env.update(os.environ)
+        env = self._vars()
+        env.update(os.environ)
 
-            p = subprocess.run([hook], cwd=self.path, env=env)
-            if p.returncode != 0:
-                raise ServiceHookError(p.returncode)
-        except FileNotFoundError:
-            pass
+        p = subprocess.run([hook], cwd=self.path, env=env)
+        info(f"running hook {path(hook)}...")
+        if p.returncode != 0:
+            raise ServiceHookError(p.returncode)
 
 ###############################################################################
+
+def find_services(root: str) -> Iterable[str]:
+    iter = os.listdir(root)
+    iter = filter(os.path.isdir, iter)
+    iter = filter(lambda x: not os.path.basename(x).startswith("."), iter)
+    return iter
 
 class InstallCmd:
     @staticmethod
     def parser(parser: argparse.ArgumentParser):
         parser.add_argument("--root", default=".", metavar="path", type=os.path.realpath, help="Install as if the repo is at this path.")
         parser.add_argument("--units", default="/etc/containers/systemd", metavar="path", type=os.path.realpath, help="Install systemd units here.", dest="units_path")
+        parser.add_argument("services", nargs="*", metavar="service", help="Install only these services.")
 
     @staticmethod
     def run(args):
-        service_paths = filter(os.path.isdir,
-                            glob.glob(os.path.join(args.root, "*"), recursive=False)
-                        )
+        if len(args.services) == 0:
+            args.services = list(find_services(args.root))
 
-        for path in service_paths:
-            try:
-                service = Service(path)
-            except ServiceNotFoundError:
-                continue
+        for service in args.services:
+            InstallCmd.do_install_service(args, service)
 
-            service.install_units(args.units_path)
+    @staticmethod
+    def do_install_service(args, service):
+        try:
+            service = Service(os.path.join(args.root, service))
+        except ServiceNotFoundError:
+            error(f"cannot find service '{service}'")
+            exit(1)
 
-            try:
-                service.install_secrets()
-            except ServiceInstallSecretError as e:
-                error(f"failed to install secret '{e}' for '{service.name}'")
-                exit(1)
+        service.install_units(args.units_path)
 
-            try:
-                service.run_hook("install")
-            except ServiceHookError as e:
-                error(f"install hook of '{service.name}' failed with code: {e}")
-                exit(1)
+        try:
+            service.install_secrets()
+        except ServiceInstallSecretError as e:
+            error(f"failed to install secret '{e}' for '{service.name}'")
+            exit(1)
+        except FileNotFoundError:
+            pass
+
+        try:
+            service.run_hook("install")
+        except ServiceHookError as e:
+            error(f"install hook of '{service.name}' failed with code: {e}")
+            exit(1)
+        except FileNotFoundError:
+            pass
 
 ###############################################################################
 
 def main():
     parser = argparse.ArgumentParser("labctl")
-    subparsers = parser.add_subparsers(dest="subparser", required=True)
+    subparsers = parser.add_subparsers(dest="command", required=True)
     InstallCmd.parser(subparsers.add_parser("install"))
     args = parser.parse_args()
 
@@ -209,7 +223,7 @@ def main():
         "install": InstallCmd.run,
     }
 
-    return run[args.subparser](args)
+    return run[args.command](args)
 
 
 if __name__ == "__main__":
