@@ -1,31 +1,29 @@
 [Unit]
 Description=NGINX Reverse proxy
 
-Wants=pihole.service
-PartOf=pihole.service
-
-Wants=syncthing.service
-PartOf=syncthing.service
-
-Wants=vaultwarden.service
-PartOf=vaultwarden.service
-
 [Container]
 Image=docker.io/nginx
 HostName=nginx
 Network=front.network
+
+# Public
 PublishPort=80:80/tcp
 PublishPort=443:443/tcp
+
+# PiHole
+PublishPort=8000:8000/tcp
+
+# Gitea
+PublishPort=8001:8001/tcp
 
 Volume={{service_path}}/conf.d:/etc/nginx/conf.d:ro
 Volume={{service_path}}/www:/www:ro
 Volume={{service_path}}/logs:/logs
 
-Secret=ssl-key
-Secret=ssl-cert
+Secret=ssl-atlas.cert
+
+[Service]
+Restart=always
 
 [Install]
-WantedBy=pihole.service
-WantedBy=syncthing.service
-WantedBy=vaultwarden.service
 WantedBy=multi-user.target

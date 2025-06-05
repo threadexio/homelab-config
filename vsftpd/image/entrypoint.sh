@@ -1,19 +1,20 @@
 #!/usr/bin/env sh
-set -eu
+set -eu -o pipefail
 
-UID="${UID:-1000}"
-USERS_FILE="${USERS_FILE:-/run/secrets/ftpusers}"
+UID="${UID:?expected \$UID}"
+GID="${GID:?expected \$GID}"
+USERS_FILE="${USERS_FILE:?expected \$USERS_FILE}"
 
-cp /vsftpd.conf /etc/vsftpd.conf
-adduser -D -s /sbin/nologin -H -h /data -u "$UID" -g "FTP user" ftpuser
+addgroup -g "$GID" vsftpd
+adduser -D -s /sbin/nologin -H -h /data -u "$UID" -G vsftpd vsftpd
 
-while IFS=: read -r uid user pw; do
-  adduser -D -H -h /data -u "$uid" "$user"
+while IFS=: read -r user uid pw; do
+  adduser -D -H -h /data -u "$uid" -G vsftpd "$user"
   echo "$user:$pw" | chpasswd -e 2>/dev/null
 done < "$USERS_FILE"
 
 exec /usr/sbin/vsftpd \
-  -onopriv_user=ftpuser \
+  -onopriv_user=vsftpd \
   -oseccomp_sandbox=NO \
   -obackground=NO \
-  /etc/vsftpd.conf
+  /etc/vsftpd/vsftpd.conf

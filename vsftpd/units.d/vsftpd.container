@@ -5,11 +5,18 @@ Description=vsftpd
 Image=vsftpd.build
 Network=host
 
-Volume={{service_path}}/vsftpd.conf:/vsftpd.conf:ro
+Environment=UID=100000
+Environment=GID=100000
+Environment=USERS_FILE=/run/secrets/ftp-users
+
+Volume={{service_path}}/vsftpd.conf:/etc/vsftpd/vsftpd.conf:ro
 Volume={{service_path}}/data:/data
 Volume={{service_path}}/logs:/logs
 
-Secret=ftpusers
+Secret=ftp-users
+
+[Service]
+Restart=always
 
 [Install]
 WantedBy=multi-user.target
