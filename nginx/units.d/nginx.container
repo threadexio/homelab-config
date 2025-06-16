@@ -20,7 +20,7 @@ Volume={{service_path}}/conf.d:/etc/nginx/conf.d:ro
 Volume={{service_path}}/www:/www:ro
 Volume={{service_path}}/logs:/logs
 
-Secret=ssl-atlas.cert
+Secret=ssl.cert
 
 [Service]
 Restart=always
