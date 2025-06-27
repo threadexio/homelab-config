@@ -1,6 +1,8 @@
 [Unit]
 Description=NGINX Reverse proxy
 
+Wants=gitea.service pihole.service
+
 [Container]
 Image=docker.io/nginx
 HostName=nginx
