@@ -1,7 +1,7 @@
 [Unit]
 Description=NGINX Reverse proxy
 
-Wants=gitea.service pihole.service
+Wants=gitea.service vaultwarden.service pihole.service
 
 [Container]
 Image=docker.io/nginx
@@ -24,8 +24,8 @@ Volume={{service_path}}/logs:/logs
 
 Secret=ssl.cert
 
-[Service]
-Restart=always
+# [Service]
+# Restart=always
 
 [Install]
 WantedBy=multi-user.target
